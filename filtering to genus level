@@ -1,0 +1,30 @@
+#This script takes metaphlan output tables with relative abundances from each taxonomic level and filters them to only include genus-level abundances
+#Next, this script writes a new output file for each participant 
+library(readr)
+
+setwd("C:/Users/scvogel/Dropbox/BASELab/DMMProject/Data/Microbiomedata/2 week/sequencing/NON-HOST/HUMANN/All")
+setwd("/Users/sarahvogel/Library/CloudStorage/Dropbox/BASELab/DMMProject/Data/Microbiomedata/2 week/sequencing/NON-HOST/HUMANN/All")#laptop
+files <- list.files(pattern = "\\metaphlan.tsv$")
+files
+genus_data_list <- list()
+
+# Loop through each file
+for (file in files) {
+  # Read MetaPhlAn file
+  data <- read.table(file, header = TRUE, skip = 4, sep = "\t", stringsAsFactors = FALSE)
+  colnames(data)[1] <- "clade_name"
+  colnames(data)[2] <- "NCBI_tax_id"
+  colnames(data)[3] <- "relative_abundance"
+  colnames(data)[4] <- "additional_species"
+  # Filter data to include only genus-level information
+  genus_data <- data[grepl("\\|g__", data$clade_name), ]
+  genus_data <- genus_data[!grepl("\\|s__", genus_data$clade_name),]
+  # Extract sample ID from file name
+  sample_id <- gsub("\\.txt", "", file)
+  
+  # Save filtered species data to a new file with sample ID
+  write.csv(genus_data, paste0(sample_id, "_genus_data.csv"), row.names = FALSE)
+  
+  # Add filtered species data to the list
+  genus_data_list[[sample_id]] <- genus_data
+}
