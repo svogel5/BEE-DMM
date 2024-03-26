@@ -18,7 +18,7 @@ for (file in files) {
   colnames(data)[4] <- "additional_species"
   # Filter data to include only species-level information
   species_data <- data[grepl("\\|s__", data$clade_name), ]
-  
+  species_data <- species_data[!grepl("\\|t__", species_data$clade_name),] #filter out the strain-level taxa
   # Extract sample ID from file name
   sample_id <- gsub("\\.txt", "", file)
   
